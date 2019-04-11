@@ -1,0 +1,18 @@
+<h1 align="center">Edit Comment</h1>
+<%= render 'sharedElements/errors', object: @comment %>
+<%= form_for(@comment, :html => {class: "form-horizontal", role: "form"}) do |f| %>
+	<div class="form-group">
+	    <div class="col-sm-2 control-label">
+	    <%= f.label :context %>
+	    </div>
+	    <div class="col-sm-8">
+	    <%= f.text_field :context, class:"form-control", placeholder:"Comment...", autofocus:true %>
+	    </div>
+	</div>
+	 
+	<div class="form-group">
+		<div class="col-sm-16 col-sm-offset-5">
+	    <%= f.submit "Update Comment", class: 'btn btn-primary btn-m' %>
+	    </div>
+	</div>
+<% end %>

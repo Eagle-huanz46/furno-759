@@ -1,0 +1,91 @@
+<h2 align="center">Title: <%= @article.title %></h2>
+<div class="well col-xs-8 col-xs-offset-2">
+	<%# if @article.user %> <!--the description of user will deiscard if the article does not have user, but later it will be forced to have one-->
+	<ul class="listing">
+	   <div class="row center">
+	      <div class="col-md-4 col-md-offset-4">
+	      	   <li>Created by:</li>
+	           <li><%= link_to gravatar_for(@article.user), user_path(@article.user) %></li>
+	           <li class="user-name"><%= link_to @article.user.username, user_path(@article.user) %></li>
+	           <li><small><%= pluralize(@article.user.articles.count, "article") if @article.user.articles %></small></li>
+	      </div>
+	   </div>
+	</ul>
+	<%# end %>
+	<h4 class="center description"><strong>Description: </strong></h4><hr>
+	<%= simple_format(@article.description) %>
+    <!--rails can automatically find the partial file name (_tag) the same as to the array name (tag) if rendering an array-->
+	<% if @article.tags.any? %>
+	   <p>Tags: <%= render @article.tags %></p>   
+	<% end %>
+
+	<div class="article-controller">
+
+		<% if login? && (current_user == @article.user || current_user.admin?) %>
+			<%= link_to "Edit It", edit_article_path(@article), class: "btn btn-s btn-primary" %>
+			<%= link_to "Delete It", article_path(@article), method: :delete, data: {confirm: "Are you sure?"}, class: "btn btn-s btn-danger" %>
+		<% end %>
+        <%= link_to "View All", articles_path,  class: "btn btn-s btn-success" %>
+	</div>
+    
+    <hr>
+		<% if @article.comments.any? %>
+		   <h4 class="center"><strong>Comments: </strong></h4>
+		   	  <% @article_comments.order(updated_at: :desc).each do |c| %>
+					<div class="comment-body">
+						
+						<% if c.user %>
+						    
+						    	<strong><%= c.user.username %>:</strong> 
+						    <small><%= c.context %></small>
+						    <br>
+						    <small>
+						    	Created <%= time_ago_in_words(c.created_at) %> ago
+						    </small>
+
+						    <small>
+						    	Updated <%= time_ago_in_words(c.updated_at) %> ago
+						    </small>
+
+						    <% if login? && (current_user == c.user || current_user.admin?) %>
+								<%= link_to "Edit", edit_comment_path(c), class: "btn btn-xs btn-primary" %>
+								<%= link_to "Delete", comment_path(c), method: :delete, data: {confirm: "Delete this comment?"}, class: "btn btn-xs btn-danger" %>
+						    <% end %>
+							
+						<% end %>
+
+						
+		            </div>
+			   <% end %>
+			   <div align="center"><%= will_paginate @article_comments %></div>
+	          
+		<% end %>
+    
+
+    <% if login? %>
+	    <hr>
+		<div class="row">
+			<%= render 'sharedElements/errors', object: @new_comments %>
+			<%= form_for(@new_comments, :html => {class: "form-horizontal", role: "form"}) do |f| %>
+				<div class="form-group">
+				    <div class="col-sm-2 control-label">
+				    <%= f.label :context %>
+				    </div>
+				    <div class="col-sm-8">
+				    <%= f.text_field :context, class:"form-control", placeholder:"Comment..." %>
+				    <%= f.hidden_field :user_id, value:current_user.id %>
+				    <%= f.hidden_field :article_id, value:@article.id %>
+				    </div>
+				</div>
+				 
+				<div class="form-group">
+					<div class="col-sm-16 col-sm-offset-5">
+				    <%= f.submit "Create Comment", class: 'btn btn-primary btn-m' %>
+				    </div>
+				</div>
+			<% end %>
+		</div>
+	<% end %>
+
+</div>
+
